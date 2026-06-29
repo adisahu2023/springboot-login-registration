@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sign in to your student account">
+    <title>Student Login</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --ink: #172033;
+            --muted: #687086;
+            --line: #dfe3ec;
+            --primary: #5b4cf0;
+            --primary-dark: #4638d3;
+            --danger: #b42318;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            color: var(--ink);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background:
+                radial-gradient(circle at 12% 15%, rgba(91, 76, 240, .15), transparent 28%),
+                radial-gradient(circle at 88% 85%, rgba(38, 185, 164, .13), transparent 26%),
+                #f6f7fb;
+        }
+
+        .login-card {
+            width: min(100%, 430px);
+            padding: 42px;
+            border: 1px solid rgba(255, 255, 255, .8);
+            border-radius: 24px;
+            background: rgba(255, 255, 255, .94);
+            box-shadow: 0 24px 70px rgba(28, 35, 60, .12);
+        }
+
+        .brand {
+            width: 48px;
+            height: 48px;
+            display: grid;
+            place-items: center;
+            margin-bottom: 26px;
+            border-radius: 14px;
+            color: white;
+            font-size: 22px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #796cf7, var(--primary-dark));
+            box-shadow: 0 10px 25px rgba(91, 76, 240, .3);
+        }
+
+        h1 { margin: 0 0 8px; font-size: 30px; letter-spacing: -.7px; }
+        .subtitle { margin: 0 0 30px; color: var(--muted); line-height: 1.55; }
+
+        .field { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 650; }
+
+        input {
+            width: 100%;
+            height: 50px;
+            padding: 0 15px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            outline: none;
+            color: var(--ink);
+            font: inherit;
+            background: #fff;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(91, 76, 240, .12);
+        }
+
+        .password-wrap { position: relative; }
+        .password-wrap input { padding-right: 72px; }
+        .toggle-password {
+            position: absolute;
+            top: 50%;
+            right: 13px;
+            transform: translateY(-50%);
+            border: 0;
+            padding: 6px;
+            color: var(--primary);
+            font: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .submit-button {
+            width: 100%;
+            height: 52px;
+            margin-top: 4px;
+            border: 0;
+            border-radius: 12px;
+            color: #fff;
+            font: inherit;
+            font-weight: 750;
+            background: var(--primary);
+            box-shadow: 0 10px 24px rgba(91, 76, 240, .24);
+            cursor: pointer;
+            transition: background .2s, transform .15s;
+        }
+
+        .submit-button:hover { background: var(--primary-dark); }
+        .submit-button:active { transform: translateY(1px); }
+        .submit-button:disabled { opacity: .7; cursor: wait; }
+
+        .message {
+            display: none;
+            margin: 0 0 18px;
+            padding: 11px 13px;
+            border-radius: 10px;
+            color: var(--danger);
+            font-size: 14px;
+            background: #fff0ee;
+        }
+        .message.visible { display: block; }
+        .message.success { color: #067647; background: #ecfdf3; }
+
+        .register-link { margin: 25px 0 0; color: var(--muted); text-align: center; font-size: 14px; }
+        a { color: var(--primary); font-weight: 700; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        @media (max-width: 500px) {
+            body { padding: 16px; }
+            .login-card { padding: 30px 24px; border-radius: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Student login form -->
+    <main class="login-card">
+        <div class="brand" aria-hidden="true">S</div>
+        <h1>Welcome back</h1>
+        <p class="subtitle">Sign in to continue to your student account.</p>
+
+        <form id="loginForm">
+            <div class="field">
+                <label for="email">Email address</label>
+                <input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email" required>
+            </div>
+
+            <div class="field">
+                <label for="password">Password</label>
+                <div class="password-wrap">
+                    <input type="password" id="password" name="password" placeholder="Enter your password" autocomplete="current-password" minlength="6" required>
+                    <button class="toggle-password" type="button" id="togglePassword" aria-label="Show password">Show</button>
+                </div>
+            </div>
+
+            <p class="message" id="message" role="alert" aria-live="polite"></p>
+            <button class="submit-button" id="submitButton" type="submit">Sign in</button>
+        </form>
+
+        <p class="register-link">New here? <a href="registration.html">Create an account</a></p>
+    </main>
+
+    <script>
+        const form = document.getElementById("loginForm");
+        const passwordInput = document.getElementById("password");
+        const togglePassword = document.getElementById("togglePassword");
+        const submitButton = document.getElementById("submitButton");
+        const message = document.getElementById("message");
+
+        togglePassword.addEventListener("click", function () {
+            const isHidden = passwordInput.type === "password";
+            passwordInput.type = isHidden ? "text" : "password";
+            this.textContent = isHidden ? "Hide" : "Show";
+            this.setAttribute("aria-label", isHidden ? "Hide password" : "Show password");
+        });
+
+        form.addEventListener("submit", async function (event) {
+            event.preventDefault();
+            message.className = "message";
+            submitButton.disabled = true;
+            submitButton.textContent = "Signing in...";
+        
+
+
+           try { 
+    const response = await fetch("http://localhost:8080/login", {
+        method: "POST",
+        credentials:"include",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            email: document.getElementById("email").value.trim(),
+            password: passwordInput.value
+        })
+    });
+
+    if (!response.ok) {
+        throw new Error("Invalid username and password");
+    }
+
+    const result = await response.json(); 
+     
+    
+        message.textContent = "Signed in successfully.";
+        message.className = "message success visible";
+        window.location.href = "home.html";
+    
+
+} catch (error) {
+    message.textContent = error.message === "Failed to fetch"
+        ? "Unable to reach the server. Please try again."
+        : error.message;
+    message.className = "message visible";
+} finally {
+    submitButton.disabled = false;
+    submitButton.textContent = "Sign in";
+}
+        });
+    </script>
+</body>
+</html>
