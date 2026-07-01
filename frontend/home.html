@@ -151,6 +151,7 @@ document.getElementById("logoutButton").addEventListener("click", async () => {
     await fetch("http://localhost:8080/logout", {
         method: "POST",   // ← was GET, must be POST
         credentials: "include"
+
     });
     window.location.replace("login.html");
 });

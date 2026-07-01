@@ -33,20 +33,20 @@ public class Registration {
 
     }
 
+
+
     @PostMapping("/login")
     @CrossOrigin(origins = {"http://127.0.0.1:5500", "http://localhost:5500"}, allowCredentials = "true")
     public ResponseEntity<Student> getStudent(@RequestBody LoginRequest loginRequest, HttpSession session){
         Student student=service.getStudent(loginRequest);
-        System.out.println(student);
         if(student !=null) {
             session.setAttribute("student",student);
-            System.out.println("PROFILE SESSION ID = " + session.getId());
-            System.out.println("Student = " + session.getAttribute("student"));
-
             return ResponseEntity.ok(student);}
-
-        else     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        else return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
+
+
+
 
     @GetMapping("/profile")
     @CrossOrigin(origins = {"http://127.0.0.1:5500", "http://localhost:5500"}, allowCredentials = "true")
@@ -69,7 +69,6 @@ public class Registration {
     @CrossOrigin(origins = {"http://127.0.0.1:5500", "http://localhost:5500"}, allowCredentials = "true")
     public ResponseEntity<String> logout(HttpSession session){
         session.invalidate();
-
         return ResponseEntity.ok()
                 .build();
     }

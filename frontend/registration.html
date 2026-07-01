@@ -18,8 +18,14 @@
         label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 650; }
         input, textarea { width: 100%; border: 1px solid var(--line); border-radius: 12px; outline: none; color: var(--ink); font: inherit; background: #fff; transition: border-color .2s, box-shadow .2s; }
         input { height: 50px; padding: 0 15px; }
+        input[type="file"] { height: auto; padding: 10px; color: var(--muted); cursor: pointer; }
+        input[type="file"]::file-selector-button { margin-right: 12px; padding: 8px 13px; border: 0; border-radius: 8px; color: var(--primary); font: inherit; font-weight: 700; background: #eeecff; cursor: pointer; }
         textarea { min-height: 96px; padding: 13px 15px; resize: vertical; }
         input:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(91,76,240,.12); }
+        .image-upload { display: flex; align-items: center; gap: 16px; }
+        .image-preview { width: 64px; height: 64px; flex: 0 0 64px; display: none; object-fit: cover; border: 2px solid #eeecff; border-radius: 50%; }
+        .image-preview.visible { display: block; }
+        .image-help { margin: 7px 0 0; color: var(--muted); font-size: 12px; }
         .message { display: none; margin: 20px 0 0; padding: 11px 13px; border-radius: 10px; color: var(--danger); font-size: 14px; background: #fff0ee; }
         .message.visible { display: block; }
         .message.success { color: #067647; background: #ecfdf3; }
@@ -45,6 +51,16 @@
                 <div class="field"><label for="name">Full name</label><input type="text" id="name" placeholder="Your full name" autocomplete="name" required></div>
                 <div class="field"><label for="email">Email address</label><input type="email" id="email" placeholder="you@example.com" autocomplete="email" required></div>
                 <div class="field"><label for="password">Password</label><input type="password" id="password" placeholder="At least 6 characters" autocomplete="new-password" minlength="6" required></div>
+                <div class="field full">
+                    <label for="profileImage">Profile image (optional)</label>
+                    <div class="image-upload">
+                        <img class="image-preview" id="imagePreview" alt="Selected profile image preview">
+                        <div>
+                            <input type="file" id="profileImage" name="profileImage" accept="image/png,image/jpeg,image/webp">
+                            <p class="image-help">PNG, JPG, or WebP. Maximum size: 5 MB.</p>
+                        </div>
+                    </div>
+                </div>
                 <div class="field full"><label for="address">Address</label><textarea id="address" placeholder="Enter your address" autocomplete="street-address" required></textarea></div>
             </div>
             <p class="message" id="message" role="alert" aria-live="polite"></p>
@@ -58,6 +74,28 @@
         const form = document.getElementById("studentForm");
         const message = document.getElementById("message");
         const submitButton = document.getElementById("submitButton");
+        const profileImage = document.getElementById("profileImage");
+        const imagePreview = document.getElementById("imagePreview");
+        let previewUrl;
+
+        profileImage.addEventListener("change", function () {
+            const file = profileImage.files[0];
+            if (previewUrl) URL.revokeObjectURL(previewUrl);
+            imagePreview.classList.remove("visible");
+
+            if (!file) return;
+            if (file.size > 5 * 1024 * 1024) {
+                profileImage.value = "";
+                message.textContent = "Please select an image smaller than 5 MB.";
+                message.className = "message visible";
+                return;
+            }
+
+            message.className = "message";
+            previewUrl = URL.createObjectURL(file);
+            imagePreview.src = previewUrl;
+            imagePreview.classList.add("visible");
+        });
 
         form.addEventListener("submit", async function (event) {
             event.preventDefault();
@@ -65,12 +103,16 @@
             submitButton.disabled = true;
             submitButton.textContent = "Creating account...";
 
+
+         
+
             const student = {
                 id: Number(document.getElementById("id").value),
                 name: document.getElementById("name").value.trim(),
                 email: document.getElementById("email").value.trim(),
                 password: document.getElementById("password").value,
-                address: document.getElementById("address").value.trim()
+                address: document.getElementById("address").value.trim(),
+                 
             };
 
             try {
